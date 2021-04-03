@@ -11,18 +11,20 @@
         <template>
           <v-list-item :to="{ name: 'home' }">
             <v-list-item-action>
-              <v-icon>timeline</v-icon>
+              <v-icon>checkroom
+</v-icon>
             </v-list-item-action>
-            <v-list-item-title> Timeline </v-list-item-title>
+            <v-list-item-title> Apartados </v-list-item-title>
           </v-list-item>
         </template>
 
         <template>
           <v-list-item :to="{ name: 'home' }">
             <v-list-item-action>
-              <v-icon>how_to_reg</v-icon>
+              <v-icon>
+sentiment_very_satisfied</v-icon>
             </v-list-item-action>
-            <v-list-item-title> home </v-list-item-title>
+            <v-list-item-title> Clientes </v-list-item-title>
           </v-list-item>
         </template>
       </v-list>
@@ -58,7 +60,14 @@
         <v-col xs="6" sm="6" md="6">
         <!--  <Busqueda/> -->
         </v-col>
-        <v-col xs="3" sm="3" md="3" align="right">
+        <v-col xs="2" sm="2" md="2" align="right" class="alineados">
+          
+          <span class="hidden-sm-and-down">Vendedor:</span>
+           <h2>Marco</h2>
+        </v-col>
+        <v-col xs="1" sm="1" md="1" align="right">
+          
+         
           <v-btn @click="salir()" icon v-if="logueado">
             <v-icon>logout</v-icon>Salir
           </v-btn>
@@ -122,5 +131,14 @@ export default {
   color: inherit;
   padding-top: 35px;
   height: 50px;
+}
+.alineados{
+  display: flex;
+  align-items: center;
+  place-content: flex-end;
+}
+.alineados span{
+  padding-top: 5px;
+  padding-right: 5px;
 }
 </style>
