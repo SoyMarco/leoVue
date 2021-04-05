@@ -120,9 +120,8 @@
 
 				if (dataLogin) {
 					const { token } = dataLogin.data.login;
- this.$store.dispatch("guardarToken", token);
-          this.$router.push({ name: "home" });
-
+					this.$store.dispatch("guardarToken", token);
+					this.$router.push({ name: "home" });
 
 					this.btnLoading = false;
 				}
