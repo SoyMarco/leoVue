@@ -9,6 +9,9 @@ export default new Vuex.Store({
 	state: {
 		token: null,
 		usuario: false,
+		componentes: {
+			Cobrar: false,
+		},
 	},
 	mutations: {
 		setToken(state, token) {
