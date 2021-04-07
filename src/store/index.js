@@ -11,6 +11,11 @@ export default new Vuex.Store({
 		usuario: false,
 		componentes: {
 			Cobrar: false,
+			Imprimir: false,
+		},
+		limpiarData: {
+			Home: false,
+			Cobrar: false,
 		},
 	},
 	mutations: {

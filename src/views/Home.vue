@@ -3,7 +3,7 @@
 		<v-flex>
 			<div>{{ selectedId.index }}</div>
 			<v-col sm="12" md="12" style="padding-top: 0px; padding-bottom: 0px">
-				<v-card elevation="24">
+				<v-card elevation="24" shaped>
 					<v-card-text color="#000058">
 						<v-text-field
 							v-model="precio"
@@ -16,13 +16,13 @@
 							autofocus
 							autocomplete="off"
 							class="precio"
-							id="precio"
+							id="precioId"
 							@keyup.enter="agregarProducto()"
 							@keyup.up="rowArriba"
 							@keyup.down="rowAbajo"
 							@keyup.187="addArticuloKey"
 							@keyup.109="removeArticuloKey"
-              @keyup.123="agregarProducto"
+							@keyup.123="agregarProducto"
 						>
 						</v-text-field>
 						<!-- Comienza Tabla -->
@@ -97,7 +97,7 @@
 					</v-card-text>
 
 					<v-card-text style="padding-left: 0px">
-						<!-- Total Total -->
+						<!-- TOTAL -->
 						<v-row>
 							<v-col sm="12" md="12" align="right" class="finalTabla">
 								<h1 class="cantidad" @click="Pruebas()">
@@ -113,16 +113,12 @@
 			</v-col>
 
 			<!-- COBRAR Modal -->
-			<v-dialog v-model="Cobrar" transition="dialog-top-transition"   persistent  >
-				<!--   <crud-citas-vue
-          :componente="componente"
-          :itemProps="itemProps"
-        ></crud-citas-vue> -->
-				<Cobrar 
-        componente="Cobrar"
-        :dataTotal="total"
-        :dataProductos="productos"
-        />
+			<v-dialog v-model="Cobrar" persistent>
+				<Cobrar
+					componente="Cobrar"
+					:dataTotal="total"
+					:dataProductos="productos"
+				/>
 			</v-dialog>
 			<!--Termina COBRAR MODAL -->
 		</v-flex>
@@ -144,6 +140,7 @@
 			total: 0,
 			cantidadAtirulos: 0,
 			precio: "",
+			productos: [],
 			headers: [
 				{
 					text: "ID",
@@ -158,24 +155,6 @@
 				{ text: "REFERENCIA", value: "refApartado", sortable: false },
 				{ text: "TOTAL", value: "totalArticulo", sortable: false },
 				{ text: "BORRAR", value: "borrar", sortable: false },
-			],
-			productos: [
-			/* 	{
-					idArray: 1,
-					nombre: "Articulo",
-					precio: 5,
-					cantidad: 4,
-					apartado: 0,
-					totalArticulo: "",
-				},
-				{
-					idArray: 2,
-					nombre: "Articulo",
-					precio: 5,
-					cantidad: 5,
-					apartado: 0,
-					totalArticulo: "",
-				}, */
 			],
 		}),
 		computed: {
@@ -197,15 +176,20 @@
 			Cobrar() {
 				return this.$store.state.componentes.Cobrar;
 			},
+			limpiarData() {
+				return this.$store.state.limpiarData.Home;
+			},
 		},
 		watch: {
 			rowSelect() {},
+			limpiarData() {
+				this.limpiarDataHome();
+			},
 		},
 
 		methods: {
 			Pruebas() {
-				console.log(
-        this.$store.state.componentes.Cobrar);
+				console.log(this.limpiarData);
 			},
 			async addProducto() {
 				const addProd = await this.$apollo
@@ -253,11 +237,11 @@
 					this.selectLastRow();
 					this.idArticulo = this.idArticulo + 1;
 					console.log(this.productos);
-				} else if (!this.precio && this.cantidadAtirulos > 0){
-				 this.abrirCobrar()
-				}else{
-          	this.precio = "";
-        }
+				} else if (!this.precio && this.cantidadAtirulos > 0) {
+					this.abrirCobrar();
+				} else {
+					this.precio = "";
+				}
 			},
 			async eliminarProducto(arr, item) {
 				let i = arr.indexOf(item);
@@ -308,7 +292,7 @@
 				this.precio = 0;
 			},
 			focusPrecio() {
-				document.getElementById("precio").focus();
+				document.getElementById("precioId").focus();
 			},
 			rowClick(item, row) {
 				console.log(row);
@@ -356,40 +340,49 @@
 			currentItems(e) {
 				this.arrayTable = e;
 			},
-      cerrarCobrar(){
-        this.$store.state.componentes.Cobrar = false
-      },
-       abrirCobrar(){
-        this.$store.state.componentes.Cobrar = true
-      },
-     
+			cerrarCobrar() {
+				this.$store.state.componentes.Cobrar = false;
+			},
+			abrirCobrar() {
+				this.$store.state.componentes.Cobrar = true;
+			},
+			limpiarDataHome() {
+				this.idArticulo = 0;
+				this.input = "";
+				this.arrayTable = [];
+				this.select = "";
+				this.selected = [];
+				this.selectedId = -1;
+				this.total = 0;
+				this.cantidadAtirulos = 0;
+				this.precio = "";
+				this.productos = [];
+				this.$store.state.limpiarData.Home = false;
+				this.focusPrecio();
+			},
 		},
-    
 	};
-   document.onkeypress = function (event) {
-        event = (event || window.event);
-        if (event.keyCode == 123) {
-            return false;
-        }
-    }
-    document.onmousedown = function (event) {
-        event = (event || window.event);
-        if (event.keyCode == 123) {
-         
-            return false;
-        }
-    }
-    document.onkeydown = function (event) {
-        event = (event || window.event);
-        if (event.keyCode == 123) {
-           
-            return false;
-        }
-    }
+	document.onkeypress = function(event) {
+		event = event || window.event;
+		if (event.keyCode == 123) {
+			return false;
+		}
+	};
+	document.onmousedown = function(event) {
+		event = event || window.event;
+		if (event.keyCode == 123) {
+			return false;
+		}
+	};
+	document.onkeydown = function(event) {
+		event = event || window.event;
+		if (event.keyCode == 123) {
+			return false;
+		}
+	};
 </script>
 
 <style>
-
 	.precio input {
 		font-size: 2.2em;
 		text-align: center;
@@ -413,18 +406,16 @@
 		font-size: calc(4 * (0.5vw + 0.5vh));
 		color: #000058;
 	}
-  .cantidadTabla {
+	.cantidadTabla {
 		font-size: 1.5em;
 		color: #000058;
-    text-align: center !important;
+		text-align: center !important;
 	}
-  .cantidadTabla input{
-		
-    text-align: center;
+	.cantidadTabla input {
+		text-align: center;
 	}
-  .cantidadTabla .v-icon{
-		
-    color: #0070c9;
+	.cantidadTabla .v-icon {
+		color: #0070c9;
 	}
 	.finalTabla {
 		display: flex;

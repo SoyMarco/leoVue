@@ -2,13 +2,12 @@
 	<v-layout>
 		<v-flex>
 			<v-dialog
-				transition="dialog-top-transition"
 				v-model="Cobrar"
 				max-width="500px"
 				class="modalCitaModal"
 				persistent
 			>
-				<v-card>
+				<v-card shaped>
 					<v-toolbar color="primary" dark style="font-weight: bold">
 						<v-toolbar-title class="font-weight flex">
 							<v-icon>shopping_cart</v-icon>
@@ -46,9 +45,9 @@
 								@click="selectEfectivo"
 								@keyup.84="selectTarjeta"
 								@keyup.65="selectaCuenta"
-                                @keyup.73="imprimir"
-                                @keyup.71="guardarVenta"
-                                @keyup.13="imprimir"
+								@keyup.73="imprimir"
+								@keyup.71="guardarVenta"
+								@keyup.13="abrirImprimir"
 							></v-text-field>
 							<!-- TARJETA -->
 							<v-text-field
@@ -66,9 +65,9 @@
 								@click="selectTarjeta"
 								@keyup.69="selectEfectivo"
 								@keyup.65="selectaCuenta"
-                                @keyup.73="imprimir"
-                                @keyup.71="guardarVenta"
-                                @keyup.13="imprimir"
+								@keyup.73="imprimir"
+								@keyup.71="guardarVenta"
+								@keyup.13="imprimir"
 							></v-text-field>
 							<!-- A CUENTA -->
 							<v-text-field
@@ -86,9 +85,9 @@
 								@click="selectaCuenta"
 								@keyup.84="selectTarjeta"
 								@keyup.69="selectEfectivo"
-                                @keyup.73="imprimir"
-                                @keyup.71="guardarVenta"
-                                @keyup.13="imprimir"
+								@keyup.73="imprimir"
+								@keyup.71="guardarVenta"
+								@keyup.13="imprimir"
 							></v-text-field>
 							<h1
 								:style="calcularCambio >= 0 ? 'color: #35B009 ' : 'color: red'"
@@ -100,10 +99,13 @@
 						</v-container>
 					</v-card-text>
 					<v-divider></v-divider>
+					<h2 v-if="errorMsg" style="color: red">{{ errorMsg }}</h2>
 					<v-card-actions style="padding-bottom: 25px; padding-top: 20px">
 						<v-spacer></v-spacer>
 
 						<v-btn
+							:disabled="btnDisabled"
+							:loading="btnLoading"
 							color="#3DC90A"
 							rounded
 							style="background: linear-gradient(#47EB0C,#3DC90A);"
@@ -115,6 +117,8 @@
 							imprimir
 						</v-btn>
 						<v-btn
+							:disabled="btnDisabled"
+							:loading="btnLoading"
 							color="#0070c9"
 							style="background: linear-gradient(#42a1ec,#0070c9);"
 							dark
@@ -128,21 +132,44 @@
 					</v-card-actions>
 				</v-card>
 			</v-dialog>
+			<!-- IMPRIMIR Modal -->
+			<v-dialog
+				v-model="Imprimir"
+				persistent
+				transition="none"
+			>
+				<Imprimir
+					componente="Inprimir"
+					:dataProductos="productos"
+					:dataTotal="total"
+					:dataCambio="cambio"
+					:dataEfectivo="efectivo"
+					:dataTarjeta="tarjeta"
+					:dataaCuenta="aCuenta"
+					:dataFolio="folio"
+				/>
+			</v-dialog>
+			<!--Termina IMPRIMIR MODAL -->
 		</v-flex>
 	</v-layout>
 </template>
 
 <script>
 	import { REGISTER_VENTA } from "../graphql/venta";
+	import Imprimir from "../components/Imprimir";
 	export default {
 		props: ["dataTotal", "dataProductos"],
+		components: { Imprimir },
 		data: () => ({
-			cambio: 0,
+			errorMsg: "",
+			btnLoading: false,
 			productos: [],
+			cambio: 0,
 			total: 0,
 			efectivo: 0,
 			tarjeta: 0,
 			aCuenta: 0,
+			folio:0,
 			rules: {
 				efectivo: [(val) => (val || "") < 15000 || "Error en efectivo"],
 			},
@@ -174,12 +201,29 @@
 			Cobrar() {
 				return this.$store.state.componentes.Cobrar;
 			},
+			btnDisabled() {
+				if (this.cambio >= 0) {
+					return false;
+				} else {
+					return true;
+				}
+			},
+			//COMPONENTES
+			Imprimir() {
+				return this.$store.state.componentes.Imprimir;
+			},
+			limpiarDataCobrar() {
+				return this.$store.state.limpiarData.Cobrar;
+			},
 		},
 		watch: {
 			Cobrar() {
 				if (this.$store.state.componentes.Cobrar === true) {
 					this.propsCobrar();
 				}
+			},
+				limpiarDataCobrar() {
+				this.limpiarData();
 			},
 		},
 		created() {
@@ -201,36 +245,44 @@
 				this.efectivo = this.$props.dataTotal;
 				this.total = this.$props.dataTotal;
 			},
-			//Enviar a GraphQL
+			//GUARDAR CON GraphQL
 			async guardarVenta() {
-				console.log(this.productos);
-				const addVenta = await this.$apollo
-					.mutate({
-						// Query Mutation
-						mutation: REGISTER_VENTA,
-						// Parameters
-						variables: {
-							input: {
-								productos: this.productos,
-								vendedor: this.$store.state.usuario.name,
-								folio: 1,
-								total: this.total,
-								efectivo: this.efectivo,
-								tarjeta: this.tarjeta,
-								aCuenta: this.aCuenta,
-								pagoCon: 0,
-								referencia: "",
-								notas: "",
+				this.btnLoading = true;
+				let efectivo = parseFloat(this.efectivo);
+				let tarjeta = parseFloat(this.tarjeta);
+				let aCuenta = parseFloat(this.aCuenta);
+				let total = parseFloat(this.total);
+				if (this.cambio >= 0) {
+					const { data, loading, error } = await this.$apollo
+						.mutate({
+							// Query Mutation
+							mutation: REGISTER_VENTA,
+							// Parameters
+							variables: {
+								input: {
+									productos: this.productos,
+									vendedor: this.$store.state.usuario.name,
+									folio: 1,
+									total: total,
+									efectivo: efectivo,
+									tarjeta: tarjeta,
+									aCuenta: aCuenta,
+									pagoCon: 0,
+									referencia: "",
+									notas: "",
+								},
 							},
-						},
-					})
-					.catch((error) => {
-						this.errorM = error.graphQLErrors[0].message;
-						this.btnLoading = false;
-					});
+						})
+						.catch((error) => {
+							console.log(error.graphQLErrors[0].message);
+							this.errorMsg = error.graphQLErrors[0].message;
+						});
 
-				if (addVenta) {
-					console.log(addVenta);
+					if (data) {
+						this.folio = await data.registerVenta.folio
+						await this.abrirImprimir()
+						this.btnLoading = false;
+					}
 				}
 			},
 			cerrarCobrar() {
@@ -248,6 +300,24 @@
 				let element = document.getElementById("aCuenta");
 				element.select();
 			},
+			limpiarData() {
+				this.productos = [];
+				this.vendedor = "";
+				this.folio = 1;
+				this.total = 0;
+				this.efectivo = 0;
+				this.tarjeta = 0;
+				this.aCuenta = 0;
+				this.pagoCon = 0;
+				this.$store.state.limpiarData.Cobrar = false;
+			},
+			cerrarImprimir() {
+				this.$store.state.componentes.Imprimir = false;
+			},
+			abrirImprimir() {
+				this.$store.state.componentes.Imprimir = true;
+			},
+				
 		},
 	};
 </script>

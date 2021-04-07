@@ -3,6 +3,7 @@ import VueRouter from "vue-router";
 import store from '../store/index'
 import Home from "../views/Home.vue";
 import Login from "../views/Login.vue"
+import Print from "../components/Imprimir.vue";
 
 Vue.use(VueRouter);
 
@@ -19,9 +20,17 @@ const routes = [
 		path: "/login",
 		name: "login",
 		component: Login,
-		 	meta: {
+		meta: {
 			libre: true,
-		}, 
+		},
+	},
+	{
+		path: "/print",
+		name: "print",
+		component: Print,
+		meta: {
+			libre: true,
+		},
 	},
 ];
 
