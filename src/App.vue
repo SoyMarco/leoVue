@@ -9,7 +9,7 @@
     >
       <v-list dense>
         <template>
-          <v-list-item :to="{ name: 'home' }">
+          <v-list-item :to="{ name: 'apartados' }">
             <v-list-item-action>
               <v-icon>checkroom
 </v-icon>
@@ -33,7 +33,7 @@ sentiment_very_satisfied</v-icon>
     <v-app-bar
       :clipped-left="$vuetify.breakpoint.lgAndUp"
       app
-      color="primary"
+      style="background: linear-gradient(#0000A6,#000066,#000058);"
       dark
     >
       <v-row>

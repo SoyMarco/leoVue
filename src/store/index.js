@@ -12,6 +12,7 @@ export default new Vuex.Store({
 		componentes: {
 			Cobrar: false,
 			Imprimir: false,
+			NuevoApartado: false,
 		},
 		limpiarData: {
 			Home: false,

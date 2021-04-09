@@ -43,11 +43,13 @@
 								style="padding-top: 25px"
 								id="efectivo"
 								@click="selectEfectivo"
+								@keyup.69="selectEfectivo"
 								@keyup.84="selectTarjeta"
 								@keyup.65="selectaCuenta"
-								@keyup.73="imprimir"
-								@keyup.71="guardarVenta"
-								@keyup.13="abrirImprimir"
+								@keyup.27="cerrarCobrar()"
+								@keyup.13="SaveAndPrint"
+								@keyup.112="SaveAndPrint"
+								@keyup.113="OnlySave"
 							></v-text-field>
 							<!-- TARJETA -->
 							<v-text-field
@@ -64,10 +66,12 @@
 								id="tarjeta"
 								@click="selectTarjeta"
 								@keyup.69="selectEfectivo"
+								@keyup.84="selectTarjeta"
 								@keyup.65="selectaCuenta"
-								@keyup.73="imprimir"
-								@keyup.71="guardarVenta"
-								@keyup.13="imprimir"
+								@keyup.27="cerrarCobrar()"
+								@keyup.13="SaveAndPrint"
+								@keyup.112="SaveAndPrint"
+								@keyup.113="OnlySave"
 							></v-text-field>
 							<!-- A CUENTA -->
 							<v-text-field
@@ -83,11 +87,13 @@
 								autocomplete="off"
 								id="aCuenta"
 								@click="selectaCuenta"
-								@keyup.84="selectTarjeta"
 								@keyup.69="selectEfectivo"
-								@keyup.73="imprimir"
-								@keyup.71="guardarVenta"
-								@keyup.13="imprimir"
+								@keyup.84="selectTarjeta"
+								@keyup.65="selectaCuenta"
+								@keyup.27="cerrarCobrar()"
+								@keyup.13="SaveAndPrint"
+								@keyup.112="SaveAndPrint"
+								@keyup.113="OnlySave"
 							></v-text-field>
 							<h1
 								:style="calcularCambio >= 0 ? 'color: #35B009 ' : 'color: red'"
@@ -104,14 +110,12 @@
 						<v-spacer></v-spacer>
 
 						<v-btn
-							:disabled="btnDisabled"
-							:loading="btnLoading"
-							color="#3DC90A"
-							rounded
-							style="background: linear-gradient(#47EB0C,#3DC90A);"
+							color="#D32F2F"
+							style="background: linear-gradient(#F53636,#D32F2F);"
 							dark
-							class="font-weight-bold"
-							@click="prueba"
+							rounded
+							@click="cerrarCobrar"
+							class="cerrar"
 						>
 							<v-icon>print</v-icon>
 							imprimir
@@ -124,7 +128,7 @@
 							dark
 							rounded
 							class="font-weight-bold"
-							@click="guardarVenta"
+							@click="SaveAndPrint"
 						>
 							<v-icon>save</v-icon>
 							guardar
@@ -133,11 +137,7 @@
 				</v-card>
 			</v-dialog>
 			<!-- IMPRIMIR Modal -->
-			<v-dialog
-				v-model="Imprimir"
-				persistent
-				transition="none"
-			>
+			<v-dialog v-model="Imprimir" persistent transition="none">
 				<Imprimir
 					componente="Inprimir"
 					:dataProductos="productos"
@@ -161,6 +161,7 @@
 		props: ["dataTotal", "dataProductos"],
 		components: { Imprimir },
 		data: () => ({
+			soloGuardar: 0,
 			errorMsg: "",
 			btnLoading: false,
 			productos: [],
@@ -169,7 +170,7 @@
 			efectivo: 0,
 			tarjeta: 0,
 			aCuenta: 0,
-			folio:0,
+			folio: 0,
 			rules: {
 				efectivo: [(val) => (val || "") < 15000 || "Error en efectivo"],
 			},
@@ -222,7 +223,7 @@
 					this.propsCobrar();
 				}
 			},
-				limpiarDataCobrar() {
+			limpiarDataCobrar() {
 				this.limpiarData();
 			},
 		},
@@ -245,14 +246,19 @@
 				this.efectivo = this.$props.dataTotal;
 				this.total = this.$props.dataTotal;
 			},
+			async OnlySave() {
+				this.soloGuardar = 1;
+				this.SaveAndPrint();
+			},
 			//GUARDAR CON GraphQL
-			async guardarVenta() {
-				this.btnLoading = true;
+			async SaveAndPrint() {
+				
 				let efectivo = parseFloat(this.efectivo);
 				let tarjeta = parseFloat(this.tarjeta);
 				let aCuenta = parseFloat(this.aCuenta);
 				let total = parseFloat(this.total);
 				if (this.cambio >= 0) {
+					this.btnLoading = true;
 					const { data, loading, error } = await this.$apollo
 						.mutate({
 							// Query Mutation
@@ -277,16 +283,25 @@
 							console.log(error.graphQLErrors[0].message);
 							this.errorMsg = error.graphQLErrors[0].message;
 						});
-
-					if (data) {
-						this.folio = await data.registerVenta.folio
-						await this.abrirImprimir()
+					if (this.soloGuardar === 0) {
+						if (data) {
+							this.folio = await data.registerVenta.folio;
+							await this.abrirImprimir();
+							this.btnLoading = false;
+						}
+					} else if (this.soloGuardar === 1) {
+						this.$store.state.componentes.Imprimir = false;
+						this.$store.state.componentes.Cobrar = false;
+						this.$store.state.limpiarData.Cobrar = true;
+						this.$store.state.limpiarData.Home = true;
 						this.btnLoading = false;
+						this.soloGuardar = 0;
 					}
 				}
 			},
 			cerrarCobrar() {
 				this.$store.state.componentes.Cobrar = false;
+				this.$store.state.limpiarData.Cobrar = true;
 			},
 			selectEfectivo() {
 				let element = document.getElementById("efectivo");
@@ -317,7 +332,6 @@
 			abrirImprimir() {
 				this.$store.state.componentes.Imprimir = true;
 			},
-				
 		},
 	};
 </script>

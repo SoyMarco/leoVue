@@ -4,6 +4,7 @@ import store from '../store/index'
 import Home from "../views/Home.vue";
 import Login from "../views/Login.vue"
 import Print from "../components/Imprimir.vue";
+import Apartados from "../components/apartado/Apartados.vue";
 
 Vue.use(VueRouter);
 
@@ -12,6 +13,14 @@ const routes = [
 		path: "/",
 		name: "home",
 		component: Home,
+		meta: {
+			admin: true,
+		},
+	},
+	{
+		path: "/apartados",
+		name: "apartados",
+		component: Apartados,
 		meta: {
 			admin: true,
 		},
