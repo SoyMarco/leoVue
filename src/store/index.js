@@ -13,11 +13,15 @@ export default new Vuex.Store({
 			Cobrar: false,
 			Imprimir: false,
 			NuevoApartado: false,
+			AddProdApartado: false,
 		},
 		limpiarData: {
 			Home: false,
 			Cobrar: false,
 		},
+		busqueda: {
+			ProductosDeApartado: false,
+		}
 	},
 	mutations: {
 		setToken(state, token) {
@@ -26,16 +30,6 @@ export default new Vuex.Store({
 		setUsuario(state, usuario) {
 			state.usuario = usuario;
 		},
-
-		/* abrirCitasVue(){
-		  this.state.CrudCitasVue= true;
-			  },
-		cerrarCitasVue(){
-		  this.state.CrudCitasVue= false;
-		},
-		abrirPacientesVue(){
-		  this.state.crudPaciente= true;
-			  }, */
 	},
 	actions: {
 		guardarToken({ commit }, token) {

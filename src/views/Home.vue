@@ -33,17 +33,17 @@
 							:headers="headers"
 							:items="productos"
 							:hide-default-footer="true"
-							class="elevation-24"
-							fixed-header
-							height="60vh"
-							disable-pagination
-							@click:row="rowClick"
-							item-key="idArray"
-							single-select
-							id="dataTable"
-							@current-items="currentItems"
 							:sort-by="['idArray']"
 							:sort-desc="true"
+							@click:row="rowClick"
+							@current-items="currentItems"
+							fixed-header
+							disable-pagination
+							single-select
+							item-key="idArray"
+							id="dataTable"
+							class="elevation-24"
+							height="60vh"
 						>
 							<!-- Precio ARTICULO -->
 							<template v-slot:[`item.precio`]="{ item }" class="iconBorrar">
@@ -125,9 +125,7 @@
 			<!--Termina COBRAR MODAL -->
 			<!-- NUEVO APARTADO Modal -->
 			<v-dialog v-model="NuevoApartado" persistent>
-				<NuevoApartado
-					componente="NuevoApartado"
-				/>
+				<NuevoApartado componente="NuevoApartado" />
 			</v-dialog>
 			<!--Termina NUEVO APARTADO MODAL -->
 		</v-flex>
@@ -137,8 +135,8 @@
 <script>
 	import { REGISTER_VENTA } from "../graphql/venta";
 	import Cobrar from "../components/Cobrar";
-	import NuevoApartado from '../components/apartado/NuevoApartado'
-	import router from '../router/index'
+	import NuevoApartado from "../components/apartado/NuevoApartado";
+	import router from "../router/index";
 	export default {
 		components: { Cobrar, NuevoApartado },
 		data: () => ({
@@ -315,7 +313,6 @@
 				element.select();
 			},
 			rowClick(item, row) {
-				console.log(row);
 				row.select();
 				this.focusPrecio();
 			},
@@ -354,9 +351,6 @@
 				}
 				this.precio = [];
 			},
-			yomero() {
-				console.log(this.arrayTable);
-			},
 			currentItems(e) {
 				this.arrayTable = e;
 			},
@@ -380,66 +374,41 @@
 				await this.focusPrecio();
 				this.$store.state.limpiarData.Home = false;
 			},
-			abrirApartados(){
-				router.push({name: 'apartados'});
+			abrirApartados() {
+				router.push({ name: "apartados" });
 			},
-			abrirNuevoApartado(){
+			abrirNuevoApartado() {
 				this.$store.state.componentes.NuevoApartado = true;
 			},
-
 		},
 	};
-	document.onkeypress = function(event) {
-		event = event || window.event;
-		if (event.keyCode == 123) {
-			return false;
-		}
-	};
+
+	
 	document.onmousedown = function(event) {
 		event = event || window.event;
-		if (event.keyCode == 123) {
+		if (
+			event.keyCode == 123 ||
+			event.keyCode == 122 ||
+			event.keyCode == 112 ||
+			event.keyCode == 27
+		) {
+			document.getElementById("precioId").focus();
+			let element = document.getElementById("precioId");
+			element.select();
 			return false;
 		}
 	};
 	document.onkeydown = function(event) {
 		event = event || window.event;
-		if (event.keyCode == 123) {
-			return false;
-		}
-	};
-	document.onkeypress = function(event) {
-		event = event || window.event;
-		if (event.keyCode == 112) {
-			return false;
-		}
-	};
-	document.onmousedown = function(event) {
-		event = event || window.event;
-		if (event.keyCode == 112) {
-			return false;
-		}
-	};
-	document.onkeydown = function(event) {
-		event = event || window.event;
-		if (event.keyCode == 112) {
-			return false;
-		}
-	};
-		document.onkeypress = function(event) {
-		event = event || window.event;
-		if (event.keyCode == 122) {
-			return false;
-		}
-	};
-	document.onmousedown = function(event) {
-		event = event || window.event;
-		if (event.keyCode == 122) {
-			return false;
-		}
-	};
-	document.onkeydown = function(event) {
-		event = event || window.event;
-		if (event.keyCode == 122) {
+		if (
+			event.keyCode == 123 ||
+			event.keyCode == 122 ||
+			event.keyCode == 112 ||
+			event.keyCode == 27
+		) {
+			document.getElementById("precioId").focus();
+			let element = document.getElementById("precioId");
+			element.select();
 			return false;
 		}
 	};

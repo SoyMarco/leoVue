@@ -17,6 +17,13 @@
 						</v-card-title>
 
 						<v-card-text>
+							<!-- APARTADO?? -->
+							<v-row style="padding-top: 5px;" v-if="abonos > []">
+								<v-col class="sutituloTicket" align="right">
+									<h1>APARTADO</h1>
+								</v-col>
+							</v-row>
+							<br>
 							<!-- FECHA -->
 							<span>{{ fecha }}</span>
 							<br />
@@ -62,6 +69,8 @@
 								</v-col>
 							</v-row>
 							<!-- TABLA DE PRODUCTOS -->
+							<v-divider />
+							<h2 class="sutituloTicket">Productos</h2>
 							<table v-for="item in productos" :key="item.id" class="productos">
 								<tr>
 									<td>{{ item.nombre }}</td>
@@ -73,6 +82,17 @@
 									<td>X{{ item.cantidad }}</td>
 									<td>
 										<h3>${{ item.totalArticulo }}</h3>
+									</td>
+								</tr>
+								<v-divider />
+							</table>
+							<v-divider />
+							<h2 class="sutituloTicket"  v-if="abonos > []">Abonos</h2>
+							<table v-for="item in abonos" :key="item._id" class="productos">
+								<tr>
+									<td>{{ pasarAFecha(item) }}</td>
+									<td>
+										<h3>${{ item.abono }}</h3>
 									</td>
 								</tr>
 								<v-divider />
@@ -100,10 +120,12 @@
 			"dataTarjeta",
 			"dataaCuenta",
 			"dataFolio",
+			"dataAbonos",
 		],
 		data: () => ({
 			fecha: moment().format("LLL"),
 			productos: [],
+			abonos: [],
 			total: 0,
 			cambio: 0,
 			efectivo: 0,
@@ -129,6 +151,7 @@
 		methods: {
 			async propsImprimir() {
 				this.productos = this.$props.dataProductos;
+				this.abonos = this.$props.dataAbonos
 				this.efectivo = this.$props.dataEfectivo;
 				this.total = this.$props.dataTotal;
 				this.cambio = this.$props.dataCambio;
@@ -156,6 +179,10 @@
 				this.$store.state.limpiarData.Cobrar = true;
 				this.$store.state.limpiarData.Home = true;
 			},
+			pasarAFecha(item) {
+				var fecha = moment.unix(item.createAt / 1000).format("L");
+				return fecha;
+			},
 		},
 	};
 </script>
@@ -174,6 +201,12 @@
 		display: flex;
 		align-items: center;
 		place-content: flex-end;
+		padding-bottom: 0px;
+		max-width: 190px;
+		font-family: "Roboto", sans-serif;
+	}
+	.sutituloTicket {
+		padding-left: 5px;
 		padding-bottom: 0px;
 		max-width: 190px;
 		font-family: "Roboto", sans-serif;

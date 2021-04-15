@@ -47,7 +47,7 @@ type Mutation {
   addMessage (input: MessageInput!): Message!
   singleUpload (file: Upload!): File!
   multipleUpload (files: [Upload!]!): [File!]!
-
+registerApartado(input: ApartadoInput): Apartado
 }
 
 type Subscription {

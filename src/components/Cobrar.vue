@@ -26,6 +26,8 @@
 					</v-toolbar>
 					<v-card-text class="contenidocitaModal">
 						<v-container>
+							<br>
+							<h2>Total ${{total}}</h2>
 							<!-- EFECTIVO -->
 							<v-text-field
 								v-model="efectivo"
@@ -47,7 +49,7 @@
 								@keyup.84="selectTarjeta"
 								@keyup.65="selectaCuenta"
 								@keyup.27="cerrarCobrar()"
-								@keyup.13="SaveAndPrint"
+								@keyup.enter="SaveAndPrint"
 								@keyup.112="SaveAndPrint"
 								@keyup.113="OnlySave"
 							></v-text-field>
@@ -139,7 +141,7 @@
 			<!-- IMPRIMIR Modal -->
 			<v-dialog v-model="Imprimir" persistent transition="none">
 				<Imprimir
-					componente="Inprimir"
+					componente="Imprimir"
 					:dataProductos="productos"
 					:dataTotal="total"
 					:dataCambio="cambio"
@@ -147,6 +149,7 @@
 					:dataTarjeta="tarjeta"
 					:dataaCuenta="aCuenta"
 					:dataFolio="folio"
+					:dataAbonos="abonos"
 				/>
 			</v-dialog>
 			<!--Termina IMPRIMIR MODAL -->
@@ -156,15 +159,28 @@
 
 <script>
 	import { REGISTER_VENTA } from "../graphql/venta";
+	import { REGISTER_APARTADO, ADD_ABONO } from "../graphql/apartado";
 	import Imprimir from "../components/Imprimir";
+	import gql from "graphql-tag";
+	import router from "../router/index";
+
 	export default {
-		props: ["dataTotal", "dataProductos"],
+		props: ["dataTotal", "dataProductos", "propsComponenteApartado"],
 		components: { Imprimir },
 		data: () => ({
+			componenteApartado: [],
+			abonos: [],
+			productos: [],
+			dataVenta: "",
+			dataApartado: "",
+			cliente: "",
+			nuevoApartado: 0,
+			nuevaVenta: 0,
+			nuevoAbonoApartado: 0,
+			noAbrir: false,
 			soloGuardar: 0,
 			errorMsg: "",
 			btnLoading: false,
-			productos: [],
 			cambio: 0,
 			total: 0,
 			efectivo: 0,
@@ -233,8 +249,24 @@
 		mounted() {
 			let element = document.getElementById("efectivo");
 			element.select();
+			this.$root.$on("dataProdDio", (data) => {
+				this.dataProdDio(data);
+			});
+			this.$root.$on("dataComponenteApartado", (data) => {
+				this.dataComponenteApartado(data);
+			});
 		},
 		methods: {
+			/* Verifica quien que se va imprimir */
+			async SaveAndPrint() {
+				if(this.nuevoAbonoApartado === 1){
+					this.savePrintNewAA();
+				} else if (this.nuevoApartado === 1) {
+					this.savePrintNewA();
+				}else if (this.nuevoApartado === 0) {
+					this.savePrintNewV();
+				}
+			},
 			prueba() {
 				let element = document.getElementById("efectivo");
 				console.log("element");
@@ -245,24 +277,121 @@
 				this.productos = this.$props.dataProductos;
 				this.efectivo = this.$props.dataTotal;
 				this.total = this.$props.dataTotal;
+				this.componenteApartado= this.$props.dataComponenteApartado
 			},
 			async OnlySave() {
 				this.soloGuardar = 1;
 				this.SaveAndPrint();
 			},
-			//GUARDAR CON GraphQL
-			async SaveAndPrint() {
+			/* NUEVO ABONO APARTADO */
+			async savePrintNewAA(){
+				console.log("savePrintNewAA")
+				console.log(this.componenteApartado.id)
+				let total = parseFloat(this.total);
+				console.log(total)
 				
+				if (this.cambio >= 0) {
+						 await this.guardarVenta();	
+					this.btnLoading = true;
+					const { data, loading, error } = await this.$apollo
+						.mutate({
+							// Query Mutation
+							mutation: ADD_ABONO,
+							// Parameters
+							variables: {
+								input: {
+									id: this.componenteApartado.id,
+									abono: total,
+								},
+							},
+						})/* .catch((error) => {
+							console.log(error.graphQLErrors[0].message);
+							this.errorMsg = error.graphQLErrors[0].message;
+						});*/
+						console.log(data.addAbono.abonos)
+					if (this.soloGuardar === 0) {
+						if (data) {
+							this.abonos = await data.addAbono.abonos;
+							this.productos = await this.componenteApartado.productos
+							console.log(this.abonos)
+							console.log(this.productos)
+							 await this.abrirImprimir();
+							this.btnLoading = false; 
+						}
+					} else if (this.soloGuardar === 1) {
+						await this.cerrarLimpiarApp();
+						router.push({ name: "home" });
+					}  
+				} 
+			},
+			/* NUEVO APARTADO GraphQL */
+			async savePrintNewA() {
+				console.log("guardar Nuevo Apartado");
+				console.log(this.productos);
+				console.log(this.$store.state.usuario.name);
+				console.log(this.cliente);
+				console.log(this.abonos);
+				let total = parseFloat(this.total);
+				if (this.cambio >= 0) {
+						await this.guardarVenta();
+					this.btnLoading = true;
+					const { data, loading, error } = await this.$apollo
+						.mutate({
+							// Query Mutation
+							mutation: REGISTER_APARTADO,
+							// Parameters
+							variables: {
+								input: {
+									productos: this.productos,
+									vendedor: this.$store.state.usuario.name,
+									cliente: this.cliente,
+									abonos: this.abonos,
+									folio: 1,
+									total: total,
+									referencia: "",
+									notas: "",
+								},
+							},
+						})
+						.catch((error) => {
+							console.log(error.graphQLErrors[0].message);
+							this.errorMsg = error.graphQLErrors[0].message;
+						});
+					if (this.soloGuardar === 0) {
+						if (data) {
+							this.folio = await data.registerApartado.folio;
+							await this.abrirImprimir();
+							this.btnLoading = false;
+						}
+					} else if (this.soloGuardar === 1) {
+						this.cerrarLimpiarApp();
+					}
+				}
+			},
+			async guardarVenta() {
+				console.log("VENTA");
 				let efectivo = parseFloat(this.efectivo);
 				let tarjeta = parseFloat(this.tarjeta);
 				let aCuenta = parseFloat(this.aCuenta);
 				let total = parseFloat(this.total);
+				console.log(efectivo);
+				console.log(tarjeta);
+				console.log(aCuenta);
+				console.log(total);
+				console.log(this.productos);
 				if (this.cambio >= 0) {
 					this.btnLoading = true;
 					const { data, loading, error } = await this.$apollo
 						.mutate({
 							// Query Mutation
-							mutation: REGISTER_VENTA,
+							mutation: gql`
+								mutation registerVenta($input: VentaInput) {
+									registerVenta(input: $input) {
+										id
+										folio
+									}
+								}
+							`,
 							// Parameters
 							variables: {
 								input: {
@@ -283,21 +412,29 @@
 							console.log(error.graphQLErrors[0].message);
 							this.errorMsg = error.graphQLErrors[0].message;
 						});
-					if (this.soloGuardar === 0) {
-						if (data) {
-							this.folio = await data.registerVenta.folio;
-							await this.abrirImprimir();
-							this.btnLoading = false;
-						}
-					} else if (this.soloGuardar === 1) {
-						this.$store.state.componentes.Imprimir = false;
-						this.$store.state.componentes.Cobrar = false;
-						this.$store.state.limpiarData.Cobrar = true;
-						this.$store.state.limpiarData.Home = true;
-						this.btnLoading = false;
-						this.soloGuardar = 0;
-					}
+					this.dataVenta =data;
 				}
+			},
+			//Guardar y/o Imprimir VENTA CON GraphQL
+			async savePrintNewV() {
+				await this.guardarVenta();
+				 if (this.soloGuardar === 0) {
+					if (this.dataVenta) {
+						this.folio = await this.dataVenta.registerVenta.folio;
+						await this.abrirImprimir();
+						this.btnLoading = false;
+					}
+				} else if (this.soloGuardar === 1) {
+					this.cerrarLimpiarApp();
+				} 
+			},
+			cerrarLimpiarApp() {
+				this.$store.state.componentes.Imprimir = false;
+				this.$store.state.componentes.Cobrar = false;
+				this.$store.state.limpiarData.Cobrar = true;
+				this.$store.state.limpiarData.Home = true;
+				this.btnLoading = false;
+				this.soloGuardar = 0;
 			},
 			cerrarCobrar() {
 				this.$store.state.componentes.Cobrar = false;
@@ -317,20 +454,51 @@
 			},
 			limpiarData() {
 				this.productos = [];
-				this.vendedor = "";
 				this.folio = 1;
 				this.total = 0;
 				this.efectivo = 0;
 				this.tarjeta = 0;
 				this.aCuenta = 0;
-				this.pagoCon = 0;
+				this.nuevoApartado = 0;
 				this.$store.state.limpiarData.Cobrar = false;
+				this.componenteApartado= [];
+			this.dataVenta= "";
+			this.dataApartado= "";
+			this.abonos= [];
+			this.cliente= "";
+			this.nuevaVenta= 0;
+			this.nuevoAbonoApartado= 0;
+			this.noAbrir= false;
+			this.soloGuardar= 0;
+			this.errorMsg= "";
+			this.btnLoading= false;
+			this.cambio= 0;
+			
 			},
 			cerrarImprimir() {
 				this.$store.state.componentes.Imprimir = false;
 			},
 			abrirImprimir() {
 				this.$store.state.componentes.Imprimir = true;
+			},
+			dataProdDio(datos) {
+				this.productos = datos.ProductosApartado;
+				this.efectivo = datos.abonos;
+				this.total = datos.abonos;
+				this.abonos = [
+					{
+						abono: parseFloat(datos.abonos),
+						vendedor: this.$store.state.usuario.name,
+					},
+				];
+				this.cliente = datos.cliente;
+				this.nuevoApartado = 1;
+			},
+			dataComponenteApartado(data){
+				this.componenteApartado = data
+				console.log("data")
+				console.log(data)
+				this.nuevoAbonoApartado = 1;
 			},
 		},
 	};

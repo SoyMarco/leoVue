@@ -5,6 +5,7 @@ import Home from "../views/Home.vue";
 import Login from "../views/Login.vue"
 import Print from "../components/Imprimir.vue";
 import Apartados from "../components/apartado/Apartados.vue";
+import Apartado from '../components/apartado/Apartado.vue';
 
 Vue.use(VueRouter);
 
@@ -15,6 +16,7 @@ const routes = [
 		component: Home,
 		meta: {
 			admin: true,
+			vendedor: true,
 		},
 	},
 	{
@@ -23,6 +25,7 @@ const routes = [
 		component: Apartados,
 		meta: {
 			admin: true,
+			vendedor: true,
 		},
 	},
 	{
@@ -39,6 +42,15 @@ const routes = [
 		component: Print,
 		meta: {
 			libre: true,
+		},
+	},
+	{
+		path: "/apartado/:id",
+		name: "apartado",
+		component: Apartado,
+		meta: {
+			admin: true,
+			vendedor: true,
 		},
 	},
 ];

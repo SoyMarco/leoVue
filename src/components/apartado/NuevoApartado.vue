@@ -89,9 +89,7 @@
 
 						<v-stepper-content step="3">
 							<v-card elevation="20">
-								<v-card-title>
-									
-									<h2>A cuenta</h2> </v-card-title>
+								<v-card-title> <h2>Abono</h2> </v-card-title>
 
 								<v-card-subtitle>Ingresa el primer abono</v-card-subtitle>
 								<v-card-text color="#000058">
@@ -103,12 +101,15 @@
 										autocomplete="off"
 										outlined
 										dense
+										:rules="[rules]"
 										color="green"
 										autofocus
 										class="precio"
 										@keyup.esc="e1 = 2"
+										@keyup.enter="abrirCobrar"
 									>
 									</v-text-field>
+									<h2>Apartó ${{ cuentaTotal }}</h2>
 								</v-card-text>
 
 								<v-card-actions>
@@ -131,7 +132,6 @@
 										dark
 										rounded
 										class="font-weight-bold"
-										
 									>
 										Siguiente
 										<v-icon> skip_next</v-icon>
@@ -150,10 +150,11 @@
 	export default {
 		components: { ProductosApartado },
 		data: () => ({
+			cuentaTotal: 0,
 			cantidadAtirulos: 0,
 			abono: "",
 			cliente: "",
-			ProductosApartado: true,
+			ProductosApartado: [],
 			e1: 1,
 			errorMsg: "",
 			btnDisabled: false,
@@ -166,6 +167,13 @@
 		},
 		watch: {},
 		methods: {
+			rules(value) {
+				if (value > this.cuentaTotal) {
+					return "El abono debe ser menor";
+				} else {
+					return true;
+				}
+			},
 			prueba() {},
 			cerrarNuevoApartado() {
 				this.$store.state.componentes.NuevoApartado = false;
@@ -173,9 +181,22 @@
 			stepHijo(datos) {
 				this.e1 = datos;
 			},
-			dataProductos(datos) {
+			dataProductos(datos) { 
 				this.cantidadAtirulos = datos.cantidadAtirulos;
-				console.log(this.cantidadAtirulos);
+				this.ProductosApartado = datos.productos;
+				this.cuentaTotal = datos.cuentaTotal;
+			},
+			async abrirCobrar() {
+				if (this.abono < this.cuentaTotal) {
+					this.$store.state.componentes.Cobrar = true;
+					var data = await {
+						abono: this.abono,
+						ProductosApartado: this.ProductosApartado,
+						cliente: this.cliente,
+					};
+					/* this.$emit("dataProdDio", data); */
+					this.$root.$emit("dataProdDio", data);
+				}
 			},
 		},
 	};
@@ -185,14 +206,14 @@
 		padding-top: 5px !important;
 	}
 	.theme--light.v-stepper .v-stepper__step__step {
-    color: white;
-    height: 40px;
-    width: 40px;
-    font-size: x-large;
-}
-.v-icon__svg {
-    height: 45px;
-    width: 45px;
-    fill: currentColor;
-}
+		color: white;
+		height: 40px;
+		width: 40px;
+		font-size: x-large;
+	}
+	.v-icon__svg {
+		height: 45px;
+		width: 45px;
+		fill: currentColor;
+	}
 </style>

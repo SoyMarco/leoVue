@@ -5,7 +5,6 @@ export const REGISTER_VENTA = gql`
   registerVenta(input: $input){
     id
     folio
-    cancelado
     productos{
       nombre
       precio

@@ -18,22 +18,22 @@
 									class="precio"
 									id="nombrePrenda"
 									@keyup.enter="agregarProducto()"
-                                    @keyup.esc="step(1)"
+									@keyup.esc="step(1)"
 									@keyup.up="rowArriba"
 									@keyup.down="rowAbajo"
 									@keyup.187="addArticuloKey"
 									@keyup.109="removeArticuloKey"
 									@keyup.123="agregarProducto"
-                                    @keyup.96="isNumber"
-                                    @keyup.97="isNumber"
-                                    @keyup.98="isNumber"
-                                    @keyup.99="isNumber"
-                                    @keyup.100="isNumber"
-                                    @keyup.101="isNumber"
-                                    @keyup.102="isNumber"
-                                    @keyup.103="isNumber"
-                                    @keyup.104="isNumber"
-                                    @keyup.105="isNumber"
+									@keyup.96="isNumber"
+									@keyup.97="isNumber"
+									@keyup.98="isNumber"
+									@keyup.99="isNumber"
+									@keyup.100="isNumber"
+									@keyup.101="isNumber"
+									@keyup.102="isNumber"
+									@keyup.103="isNumber"
+									@keyup.104="isNumber"
+									@keyup.105="isNumber"
 								>
 								</v-text-field>
 							</v-col>
@@ -46,18 +46,17 @@
 									dense
 									color="green"
 									type="number"
-									
 									autocomplete="off"
 									class="precio"
 									id="precioPrenda"
 									@keyup.enter="agregarProducto()"
-                                    @keyup.esc="step(1)"
+									@keyup.esc="step(1)"
 									@keyup.up="rowArriba"
 									@keyup.down="rowAbajo"
 									@keyup.187="addArticuloKey"
 									@keyup.109="removeArticuloKey"
 									@keyup.123="agregarProducto"
-                                   @keyup.69="isNumber()"
+									@keyup.69="isNumber()"
 								>
 								</v-text-field>
 							</v-col>
@@ -80,7 +79,7 @@
 							:sort-by="['idArray']"
 							:sort-desc="true"
 						>
-                        <!-- Nombre ARTICULO -->
+							<!-- Nombre ARTICULO -->
 							<template v-slot:[`item.nombre`]="{ item }" class="iconBorrar">
 								<h2>{{ item.nombre }}</h2>
 							</template>
@@ -150,33 +149,30 @@
 							</v-col>
 						</v-row>
 					</v-card-text>
-                    <v-card-actions>
-									<v-spacer></v-spacer
-									><v-btn
-										style="background: linear-gradient(#3232A6,#000058);"
-										dark
-										rounded
-										class="cerrar"
-										@click="step(1)"
-                                        @keyup.esc="step(1)"
-									
-									>
-										<v-icon>skip_previous</v-icon>
-										Anterior
-									</v-btn>
-									<v-btn
-										:disabled="btnDisabled"
-										:loading="btnLoading"
-										style="background: linear-gradient(#32A632,#005800);"
-										dark
-										rounded
-										class="font-weight-bold"
-										@click="cantidadAtirulos > 0 ? step(3) : ''"
-									>
-										Siguiente
-										<v-icon> skip_next</v-icon>
-									</v-btn>
-								</v-card-actions>
+					<v-card-actions>
+						<v-spacer></v-spacer
+						><v-btn
+							style="background: linear-gradient(#3232A6,#000058);"
+							dark
+							rounded
+							class="cerrar"
+							@click="step(1)"
+							@keyup.esc="step(1)"
+						>
+							<v-icon>skip_previous</v-icon>
+							Anterior
+						</v-btn>
+						<v-btn
+							style="background: linear-gradient(#32A632,#005800);"
+							dark
+							rounded
+							class="font-weight-bold"
+							@click="cantidadAtirulos > 0 ? step(3) : ''"
+						>
+							Siguiente
+							<v-icon> skip_next</v-icon>
+						</v-btn>
+					</v-card-actions>
 				</v-card>
 			</v-col>
 		</v-flex>
@@ -247,19 +243,19 @@
 				console.log(this.limpiarData);
 			},
 			isNumber() {
-                var numero =  parseInt(this.prenda);
-                if (numero){
-                document.getElementById("precioPrenda").focus();
-				let element = document.getElementById("precioPrenda");
-				element.select();
-                this.precio = numero
-                this.prenda = ""
-                }
+				var numero = parseInt(this.prenda);
+				if (numero) {
+					document.getElementById("precioPrenda").focus();
+					let element = document.getElementById("precioPrenda");
+					element.select();
+					this.precio = numero;
+					this.prenda = "";
+				}
 			},
 			async agregarProducto() {
-                
 				if (this.precio > 0 && this.prenda) {
 					await this.productos.push({
+						vendedor: this.$store.state.usuario.name,
 						idArray: this.idArticulo + 1,
 						nombre: this.prenda,
 						precio: Math.round(this.precio * 100) / 100,
@@ -267,29 +263,27 @@
 						totalArticulo: 0,
 					});
 					this.precio = "";
-                    this.prenda= "";
+					this.prenda = "";
 					this.dialog = 0;
 					this.selectLastRow();
 					this.idArticulo = this.idArticulo + 1;
-					this.focusPrenda()
-				} else if (this.precio <1 && this.total > 0 && !this.prenda) {
-                    this.dataPA();
+					this.focusPrenda();
+				} else if (this.precio < 1 && this.total > 0 && !this.prenda) {
+					this.dataPA();
 					this.step(3);
-				} else if(!this.prenda && this.precio > 0 ){
-                    this.focusPrenda()
-                    }else if(this.prenda && !this.precio){
-                        this.focusPrecio()
-                        }else{
-					
+				} else if (!this.prenda && this.precio > 0) {
+					this.focusPrenda();
+				} else if (this.prenda && !this.precio) {
+					this.focusPrecio();
+				} else {
 				}
-                
 			},
 			async eliminarProducto(arr, item) {
 				let i = arr.indexOf(item);
 				if (i != -1) {
 					await arr.splice(i, 1);
 				}
-                this.prenda= "";
+				this.prenda = "";
 				this.focusPrenda();
 				this.selectLastRow();
 			},
@@ -302,7 +296,7 @@
 						this.productos[i].cantidad = this.productos[i].cantidad + 1;
 					}
 				}
-				this.prenda= "";
+				this.prenda = "";
 				this.focusPrenda();
 			},
 
@@ -317,14 +311,14 @@
 						}
 					}
 				}
-				this.prenda= "";
+				this.prenda = "";
 				this.focusPrenda();
 			},
 			addArticuloKey() {
 				this.selected[0].cantidad = this.selected[0].cantidad + 1;
 
 				this.precio = 0;
-                this.focusPrenda()
+				this.focusPrenda();
 			},
 			removeArticuloKey() {
 				if (this.arrayTable[0]) {
@@ -335,23 +329,23 @@
 					}
 				}
 				this.precio = 0;
-                this.focusPrenda()
+				this.focusPrenda();
 			},
 			focusPrecio() {
 				document.getElementById("precioPrenda").focus();
 				let element = document.getElementById("precioPrenda");
 				element.select();
 			},
-            focusPrenda() {
+			focusPrenda() {
 				document.getElementById("nombrePrenda").focus();
 				let element = document.getElementById("nombrePrenda");
 				element.select();
-                this.prenda = "";
+				this.prenda = "";
 			},
 			rowClick(item, row) {
 				console.log(row);
 				row.select();
-				this.prenda= "";
+				this.prenda = "";
 				this.focusPrenda();
 			},
 			selectLastRow() {
@@ -396,14 +390,16 @@
 				this.$store.state.componentes.Cobrar = false;
 			},
 			step(paso) {
-                this.$emit('e1PA', paso);
+				this.$emit("e1PA", paso);
 			},
-            dataPA(){
-                var data= {
-                    cantidadAtirulos: this.cantidadAtirulos,
-                }
-            this.$emit('dataPA', data);
-            },
+			dataPA() {
+				var data = {
+					cantidadAtirulos: this.cantidadAtirulos,
+					productos: this.productos,
+					cuentaTotal: this.total,
+				};
+				this.$emit("dataPA", data);
+			},
 			async limpiarDataPA() {
 				this.idArticulo = 0;
 				this.input = "";
