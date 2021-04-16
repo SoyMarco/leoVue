@@ -13,7 +13,7 @@ const AUTH_TOKEN = "token";
 
 // Http endpoint
 const httpEndpoint =
-	process.env.VUE_APP_GRAPHQL_HTTP || "http://localhost:4000/";
+	process.env.VUE_APP_GRAPHQL_HTTP || "http://192.168.100.17:4000/";
 // Files URL root
 export const filesRoot =
 	process.env.VUE_APP_FILES_ROOT ||

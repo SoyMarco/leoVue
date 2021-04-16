@@ -313,14 +313,13 @@
 						if (data) {
 							this.abonos = await data.addAbono.abonos;
 							this.productos = await this.componenteApartado.productos
-							console.log(this.abonos)
-							console.log(this.productos)
 							 await this.abrirImprimir();
 							this.btnLoading = false; 
 						}
 					} else if (this.soloGuardar === 1) {
 						await this.cerrarLimpiarApp();
-						router.push({ name: "home" });
+						await router.push({ name: "home" });
+						location.reload()
 					}  
 				} 
 			},
@@ -425,7 +424,7 @@
 						this.btnLoading = false;
 					}
 				} else if (this.soloGuardar === 1) {
-					this.cerrarLimpiarApp();
+					location.reload()
 				} 
 			},
 			cerrarLimpiarApp() {

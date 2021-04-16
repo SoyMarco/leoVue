@@ -21,9 +21,10 @@
 			:sort-desc="false"
 			fixed-header
 			disable-pagination
-			class="elevation-24"
+			class="elevation-3"
 			item-key="folio"
 			id="dataTable"
+			height="36vh"
 		>
 			<!-- Vendedor -->
 			<template v-slot:[`item.vendedor`]="{ item }">
@@ -43,13 +44,11 @@
 			</template>
 
 			<!-- Si no encuentra clientes -->
-			<template v-slot:no-data>
-				<v-data-table
-					:hide-default-header="true"
-					:hide-default-footer="true"
-					loading
-					loading-text="Selecciona un APARTADO"
-				></v-data-table>
+		<template v-slot:no-data>
+				<h1>Sin datos </h1>
+				<v-btn style="background: linear-gradient(#0000E6,#0000A6 );" dark @click="propsProductos()">
+									<v-icon>sync</v-icon>	Recargar
+									</v-btn>
 			</template>
 		</v-data-table>
 

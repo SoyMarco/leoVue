@@ -62,8 +62,10 @@ sentiment_very_satisfied</v-icon>
         </v-col>
         <v-col xs="2" sm="2" md="2" align="right" class="alineados">
           
-          <span class="hidden-sm-and-down">Vendedor:</span>
-           <h2>Marco</h2>
+          <span class="hidden-sm-and-down"
+          v-if="$store.state.usuario.name"
+          >Vendedor:</span>
+           <h2>{{$store.state.usuario.name}}</h2>
         </v-col>
         <v-col xs="1" sm="1" md="1" align="right">
           

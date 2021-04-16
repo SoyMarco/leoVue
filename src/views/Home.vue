@@ -222,7 +222,7 @@
 						variables: {
 							input: {
 								productos: this.productos,
-								vendedor: "Marco!",
+								vendedor: this.$store.state.usuario.name,
 								folio: 5,
 								total: 112,
 							},
@@ -383,7 +383,6 @@
 		},
 	};
 
-	
 	document.onmousedown = function(event) {
 		event = event || window.event;
 		if (

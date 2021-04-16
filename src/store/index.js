@@ -14,6 +14,7 @@ export default new Vuex.Store({
 			Imprimir: false,
 			NuevoApartado: false,
 			AddProdApartado: false,
+			ProductosCRUD: false,
 		},
 		limpiarData: {
 			Home: false,

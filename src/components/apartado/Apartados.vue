@@ -29,8 +29,8 @@
 									></v-text-field>
 								</v-col>
 								<v-col xs="2" sm="2" md="2" style="padding-top: 15px">
-									<v-btn class="btnAgregar" rounded color="blue"
-										><v-icon>checkroom</v-icon>Agregar</v-btn
+									<v-btn class="btnAgregar" rounded style="background: linear-gradient(#2196F3,#0000E6);"
+										><v-icon>checkroom</v-icon>Nuevo</v-btn
 									>
 								</v-col>
 							</v-row>
@@ -104,6 +104,7 @@
 											:hide-default-footer="true"
 											loading
 											loading-text="No se han encontrado Clientes..."
+											
 										></v-data-table>
 										<v-btn color="primary" @click="listarClientes()">
 											Recargar

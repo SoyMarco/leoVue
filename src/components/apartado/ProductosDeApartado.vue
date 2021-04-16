@@ -1,109 +1,130 @@
 <template>
-	<v-card v-if="!$apollo.loading">
-		<v-toolbar style="background: linear-gradient(#0000A6,#000066);" dark>
-			<v-toolbar-title class="font-weight flex">
+	<v-flex>
+		<v-card v-if="!$apollo.loading">
+			<v-toolbar style="background: linear-gradient(#0000A6,#000066);" dark>
+				<v-toolbar-title class="font-weight flex">
+					<v-row>
+						<v-col xs="4" sm="4" md="4" class="sinTopBottom">
+							<h3>
+								{{ `Productos: ${(cantidadAtirulos = calcularArticulos)}` }}
+							</h3>
+						</v-col>
+						<v-col xs="8" sm="8" md="8" align="right" class="finalTabla">
+							<v-btn
+								v-if="btnVisible"
+								style="background: linear-gradient(#2196F3,#0000E6); margin-right: 10px"
+								class="btnAgregar"
+								rounded
+								color="blue"
+								@click="abrirAddProdApartado"
+								><v-icon>checkroom</v-icon>Agregar</v-btn
+							>
+						</v-col>
+					</v-row>
+				</v-toolbar-title>
+			</v-toolbar>
+			<v-data-table
+				v-model="selected"
+				:headers="headersProductos"
+				:items="listaProductos"
+				:search="search"
+				:hide-default-footer="true"
+				:sort-by="['createAt']"
+				:sort-desc="false"
+				@click:row="rowClick"
+				@current-items="currentItems"
+				single-select
+				item-key="_id"
+				fixed-header
+				disable-pagination
+				class="elevation-3"
+				id="dataTable"
+				height="36vh"
+			>
+				<!-- Nombre -->
+				<template v-slot:[`item.nombre`]="{ item }">
+					<strong color="primary" style="font-size: 1.5em;"
+						>{{ item.nombre }}
+					</strong>
+				</template>
+
+				<!-- Fecha -->
+				<template v-slot:[`item.createAt`]="{ item }">
+					{{ pasarAFecha(item) }}
+				</template>
+
+				<!-- Precio -->
+				<template v-slot:[`item.precio`]="{ item }">
+					<strong color="primary" style="font-size: 1.5em;"
+						>${{ item.precio }}
+					</strong>
+				</template>
+
+				<!-- Si no encuentra clientes -->
+				<template v-slot:no-data>
+					<h1>Sin datos</h1>
+					<v-btn
+						style="background: linear-gradient(#0000E6,#0000A6 );"
+						dark
+						@click="propsProductos()"
+					>
+						<v-icon>sync</v-icon> Recargar
+					</v-btn>
+				</template>
+			</v-data-table>
+
+			<v-card-text style="padding-left: 0px">
+				<!-- TOTAL -->
 				<v-row>
-					<v-col xs="4" sm="4" md="4" class="sinTopBottom">
-						<h3>
-							{{ `Productos: ${(cantidadAtirulos = calcularArticulos)}` }}
-						</h3>
+					<v-col
+						xs="12"
+						sm="5"
+						md="5"
+						style="padding-bottom: 0px; padding-top: 0px"
+					>
 					</v-col>
-					<v-col xs="8" sm="8" md="8" align="right" class="finalTabla">
-						<v-btn
-							class="btnAgregar"
-							rounded
-							color="blue"
-							@click="abrirAddProdApartado"
-							><v-icon>checkroom</v-icon>Agregar</v-btn
-						>
+					<v-col
+						xs="12"
+						sm="7"
+						md="7"
+						align="right"
+						class="finalTabla"
+						style="padding-bottom: 0px; padding-top: 5px"
+					>
+						<h2 class="totalProductos" @click="addProducto()">
+							$ {{ (total = calcularTotal) }}
+						</h2>
 					</v-col>
 				</v-row>
-			</v-toolbar-title>
-		</v-toolbar>
-		<v-data-table
-			:headers="headersProductos"
-			:items="listaProductos"
-			:search="search"
-			:hide-default-footer="true"
-			:sort-by="['createAt']"
-			:sort-desc="false"
-			fixed-header
-			disable-pagination
-			class="elevation-24"
-			item-key="_id"
-			id="dataTable"
-		>
-			<!-- Nombre -->
-			<template v-slot:[`item.nombre`]="{ item }">
-				<strong color="primary" style="font-size: 1.5em;"
-					>{{ item.nombre }}
-				</strong>
-			</template>
-
-			<!-- Fecha -->
-			<template v-slot:[`item.createAt`]="{ item }">
-				{{ pasarAFecha(item) }}
-			</template>
-
-			<!-- Precio -->
-			<template v-slot:[`item.precio`]="{ item }">
-				<strong color="primary" style="font-size: 1.5em;"
-					>${{ item.precio }}
-				</strong>
-			</template>
-
-			<!-- Si no encuentra clientes -->
-			<template v-slot:no-data>
-				<v-data-table
-					:hide-default-header="true"
-					:hide-default-footer="true"
-					loading
-					loading-text="Selecciona un APARTADO"
-				></v-data-table>
-				<!-- <v-btn color="primary" @click="listarClientes()">
-										Recargar
-									</v-btn> -->
-			</template>
-		</v-data-table>
-
-		<v-card-text style="padding-left: 0px">
-			<!-- TOTAL -->
-			<v-row>
-				<v-col
-					xs="12"
-					sm="5"
-					md="5"
-					style="padding-bottom: 0px; padding-top: 0px"
-				>
-				</v-col>
-				<v-col
-					xs="12"
-					sm="7"
-					md="7"
-					align="right"
-					class="finalTabla"
-					style="padding-bottom: 0px; padding-top: 5px"
-				>
-					<h2 class="totalProductos" @click="addProducto()">
-						$ {{ (total = calcularTotal) }}
-					</h2>
-				</v-col>
-			</v-row>
-		</v-card-text>
-	</v-card>
+			</v-card-text>
+		</v-card>
+		<!-- PRODUCTO CRUD Modal -->
+		<v-dialog v-model="ProductosCRUD" persistent>
+			<ProductosCRUD
+				componente="ProductosCRUD"
+				:dataProducto="selected[0]"
+			/><!-- v-on:emitAPA="emitProductosCRUD" -->
+		</v-dialog>
+		<!--Termina PRODUCTO CRUD MODAL -->
+	</v-flex>
 </template>
 <script>
+	import ProductosCRUD from "./productosCRUD/ProductosCRUD";
 	import gql from "graphql-tag";
 	import { GET_PRODUCTOS_FOLIO } from "../../graphql/apartado";
 	import moment from "moment";
 	export default {
-		props: ["dataFolio"],
+		components: { ProductosCRUD },
+		props: ["dataProductos", "dataFolio"],
 		data: () => ({
+			selected: [],
+			selectedId: -1,
 			total: 0,
 			cantidadAtirulos: 0,
 			search: "",
 			idFolio: 0,
 			listaProductos: [],
+			btnVisible: false,
 			headersProductos: [
 				{ text: "Nombre", value: "nombre", sortable: true },
 				{ text: "Fecha", value: "createAt", sortable: true },
@@ -111,8 +132,11 @@
 			],
 		}),
 		computed: {
-			buscarFolioGQL() {
+			FuncDataFolio() {
 				return this.$props.dataFolio;
+			},
+			FuncDataProductos() {
+				return this.$props.dataProductos;
 			},
 			calcularTotal: function() {
 				let resultado = 0.0;
@@ -131,9 +155,15 @@
 				}
 				return res;
 			},
+			ProductosCRUD() {
+				return this.$store.state.componentes.ProductosCRUD;
+			},
 		},
 		watch: {
-			buscarFolioGQL() {
+			FuncDataFolio() {
+				this.propsProductos();
+			},
+			FuncDataProductos() {
 				this.propsProductos();
 			},
 		},
@@ -142,8 +172,13 @@
 		},
 		methods: {
 			async propsProductos() {
-				this.idFolio = await this.$props.dataFolio;
-				this.buscarFolio();
+				if (this.$props.dataFolio) {
+					this.buscarFolio();
+				} else if (this.$props.dataProductos) {
+					this.btnVisible = true;
+					this.listaProductos = await this.$props.dataProductos;
+					console.log(this.$props.dataProductos);
+				}
 			},
 			async buscarFolio() {
 				var folio = parseFloat(this.$props.dataFolio);
@@ -165,6 +200,14 @@
 			},
 			async abrirAddProdApartado() {
 				this.$store.state.componentes.AddProdApartado = true;
+			},
+			async rowClick(item, row) {
+				await row.select();
+				console.log(this.selected[0]);
+				this.$store.state.componentes.ProductosCRUD = true
+			},
+			currentItems(e) {
+				this.arrayTable = e;
 			},
 		},
 	};

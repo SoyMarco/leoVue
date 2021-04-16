@@ -9,7 +9,7 @@
 				</v-col>
 				<v-col xs="12" sm="4" md="4" align="right" >
 					<v-btn
-						style="background: linear-gradient(#3232A6,#000058); margin-right: 10px"
+						style="background: linear-gradient(#0000E6,#0000A6 ); margin-right: 10px"
 						dark
 						rounded
 						large
@@ -29,7 +29,7 @@
 					>
 				</v-col>
 			</v-row>
-			<v-card style="padding-top: 3px">
+			<v-card style="padding-top: 3px" elevation="24">
 				<v-toolbar style="background: linear-gradient(#0000A6,#000066);" dark>
 					<v-toolbar-title class="font-weight flex">
 						<v-row>
@@ -73,12 +73,14 @@
 							xs="12"
 							sm="6"
 							md="6"
-							style="padding-left: 0px; padding-top: 0px"
+							style="padding-left: 5px; padding-top: 0px"
+						
 						>
 							<ProductosDeApartado
 								componente="ProductosDeApartado"
-								:dataFolio="$route.params.id"
+								:dataProductos="apartado.productos"
 								v-on:dataPDA="totalPDA"
+									class="elevation-24"
 							/>
 						</v-col>
 						<!-- SEGUNDA TABLA -->
@@ -92,6 +94,7 @@
 								componente="AbonosDeApartado"
 								:dataAbono="apartado.abonos"
 								v-on:dataADA="totalADA"
+									class="elevation-24"
 							/>
 						</v-col>
 					</v-row>
@@ -102,7 +105,7 @@
 						<v-row style="padding-left: 15px">
 							<h4>Vence: {{ pasarAFecha() }}</h4>
 							<v-btn
-								style="background: linear-gradient(#3232A6,#000058);"
+									style="background: linear-gradient(#0000E6,#0000A6 ); margin-left: 15px"
 								dark
 								rounded
 							>
@@ -123,6 +126,7 @@
 					<v-col xs="12" sm="6" md="6" align="right" style="padding-top: 0px">
 						<h3 class="totalApartado">Resta ${{ (total = calcularResta) }}</h3>
 						<v-progress-linear
+						
 							:buffer-value="100 - (restaria * 100) / totalProductos"
 							:value="100 - (total * 100) / totalProductos"
 							:stream="restaria === total ? false : restaria < 0 ? true : true"
@@ -169,14 +173,17 @@
 				/>
 			</v-dialog>
 			<!--Termina COBRAR MODAL -->
+
 			<!-- AGREGAR PRODUCTO Modal -->
 			<v-dialog v-model="AddProdApartado" persistent>
 				<AddProdApartado
 					componente="AddProdApartado"
 					:dataFolio="apartado.id"
+					v-on:emitAPA="emitAddProdApartado"
 				/>
 			</v-dialog>
 			<!--Termina AGREGAR PRODUCTO MODAL -->
+
 		</v-flex>
 	</v-layout>
 </template>
@@ -188,7 +195,7 @@
 	import { GET_PRODUCTOS_FOLIO } from "../../graphql/apartado";
 	import moment from "moment";
 	export default {
-		components: { ProductosDeApartado, AbonosDeApartado, Cobrar, AddProdApartado },
+		components: { ProductosDeApartado, AbonosDeApartado, Cobrar, AddProdApartado,},
 		data: () => ({
 			abono: "",
 			apartado: [],
@@ -235,9 +242,9 @@
 						},
 					});
 					if (data) {
-						console.log(data);
 						var apartado = data.getProductosFolio[0];
 						this.apartado = await apartado;
+						console.log(apartado)
 					}
 				}
 			},
@@ -273,6 +280,13 @@
 					return true;
 				}
 			},
+			async emitAddProdApartado(data){
+						if (data) {
+						var apartado = data.addProducto;
+						this.apartado = await apartado;
+						console.log(apartado)
+					}
+			},
 		},
 	};
 </script>
@@ -282,10 +296,14 @@
 		color: white;
 		margin-top: 5px;
 	}
-	.totalApartado {
+		.totalApartado {
 		margin-top: 0px;
 		margin-bottom: 0px;
 		font-size: calc(5 * (0.5vw + 0.5vh));
 		color: green;
+		
 	}
+	
+	
+
 </style>

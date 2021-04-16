@@ -87,10 +87,43 @@ mutation addAbono($input: AbonoApartadoInput){
 export const ADD_PRODUCTO = gql`
 mutation addProducto($input: ProductoApartadoInput){
   addProducto(input: $input){
-    productos{
-			_id
+		id
+		vendedor
+		cliente
+		folio
+		total
+		referencia
+		notas
+		createAt
+		vence
+		productos{
+			vendedor
 			nombre
 			precio
+			cantidad
+			totalArticulo
+			idArray
+			_id
+			createAt
+			entregado{
+				status
+				fecha
+				vendedor
+			}
+			sacado{
+				status
+				fecha
+				vendedor
+			}
+			cancelado{
+				status
+				fecha
+				vendedor
+			}
+		}
+		abonos{
+			_id
+			abono
 			vendedor
 			createAt
 			cancelado{
@@ -99,7 +132,22 @@ mutation addProducto($input: ProductoApartadoInput){
 				vendedor
 			}
 		}
-  }
+		entregado{
+			status
+			fecha
+			vendedor
+		}
+		sacado{
+			status
+			fecha
+			vendedor
+		}
+		cancelado{
+			status
+			fecha
+			vendedor
+		}
+	}
 }
 `;
 
@@ -162,6 +210,7 @@ mutation addProducto($input: ProductoApartadoInput){
 		}
 	}
 `; */
+
 /* export const APARTADOS = gql`
 query getApartados {
   getApartados {

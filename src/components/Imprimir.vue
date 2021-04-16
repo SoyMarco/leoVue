@@ -75,7 +75,7 @@
 								<tr>
 									<td>{{ item.nombre }}</td>
 									<td>
-										<h3>${{ item.precio }}</h3>
+										<h3 class="finalTicket">${{ item.precio }}</h3>
 									</td>
 								</tr>
 								<tr v-if="item.cantidad > 1">

@@ -82,7 +82,8 @@
 									style="background: linear-gradient(#32A632,#005800); 
                             inline-size: -webkit-fill-available;
                             margin-left: 70px;
-                            margin-right: 70px"
+                            margin-right: 70px;
+							min-width: 190px"
 									dark
 									@click="agregarProducto()"
 								>
@@ -132,11 +133,16 @@ import {ADD_PRODUCTO} from '../../graphql/apartado'
 								},
 							},
 						})
-                        console.log(data)
+                        if (data > []){
+							await this.$emit("emitAPA", data);
+							this.cerrarAddProdApartado()
+						}
 			},
 			cerrarAddProdApartado() {
+				this.prenda= "";
+				this.precio= 0;
 				this.$store.state.componentes.AddProdApartado = false;
-				this.$store.state.limpiarData.AddProdApartado = true;
+				
 			},
 			isNumber() {
 				var numero = parseInt(this.prenda);
@@ -177,7 +183,9 @@ import {ADD_PRODUCTO} from '../../graphql/apartado'
 	.precio {
 		font-weight: 700;
 	}
-
+.precio input {
+	text-transform: uppercase;
+}
 	.cerrar {
 		float: right;
 	}
